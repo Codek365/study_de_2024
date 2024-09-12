@@ -1,0 +1,70 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: study_de
+      MYSQL_USER: study_de
+      MYSQL_PASSWORD: 123456
+
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app_network
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra_db
+    environment:
+      CASSANDRA_CLUSTER_NAME: "MyCassandraCluster"
+      CASSANDRA_DC: "DC1"
+      CASSANDRA_RACK: "Rack1"
+      CASSANDRA_USER: cassandra
+      CASSANDRA_PASSWORD: cassandra
+    ports:
+      - "9042:9042"
+    volumes:
+      - ./cassandra_data:/var/lib/cassandra
+    networks:
+      - app_network
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    networks:
+      - app_network
+  pyspark:
+    image: bitnami/spark:latest
+    container_name: pyspark
+    environment:
+      SPARK_MODE: "master"
+      SPARK_MASTER_HOST: "pyspark"
+    ports:
+      - "8880:8080"  # Spark UI
+    networks:
+      - app_network
+  jupyter:
+    image: jupyter/scipy-notebook:latest
+    container_name: jupyter_notebook
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/work  # Mount local directory for notebooks
+    networks:
+      - app_network
+    environment:
+      JUPYTER_TOKEN: "123456"  # Set a token for access control
+
+volumes:
+  mysql_data:
+  cassandra_data:
+  
+networks:
+  app_network:
+  
